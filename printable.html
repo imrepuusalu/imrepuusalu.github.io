@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printable Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+        }
+
+        .question-container:last-child {
+            border-bottom: none;
+        }
+
+        .question-container span {
+            font-weight: bold;
+        }
+
+        .line {
+            display: block;
+            border-top: 1px solid #000;
+            width: 100%;
+            height: 20px;
+            margin-top: 10px;
+        }
+
+        .circle {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid #000;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .answer-options {
+            margin-top: 10px;
+        }
+
+        .answer-options span {
+            display: block;
+            margin-top: 5px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .header .name,
+        .header .date {
+            border-bottom: 1px solid #000;
+            width: 45%;
+        }
+
+        .print-button {
+            display: none;
+        }
+
+        /* Add page breaks if content exceeds one page */
+        @media print {
+            .container {
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="name">Name:</div>
+        <div class="date">Date:</div>
+    </div>
+
+    <div id="questions-container">
+        <!-- Questions will be dynamically inserted here -->
+    </div>
+
+    <button class="print-button" onclick="window.print()">Print</button>
+</div>
+
+<script>
+    // Get questions from localStorage (same as in the second page)
+    const questions = JSON.parse(localStorage.getItem('testQuestions')) || [];
+
+    const questionsContainer = document.getElementById('questions-container');
+
+    questions.forEach((question, index) => {
+        const questionContainer = document.createElement('div');
+        questionContainer.classList.add('question-container');
+        questionContainer.innerHTML = `<span>Question ${index + 1}:</span> ${question.question}`;
+
+        if (question.type === 'multiple-choice') {
+            const optionsContainer = document.createElement('div');
+            optionsContainer.classList.add('answer-options');
+            question.options.forEach(option => {
+                optionsContainer.innerHTML += `<span><span class="circle"></span>${option}</span>`;
+            });
+            questionContainer.appendChild(optionsContainer);
+        } else if (question.type === 'translation') {
+            // For translation questions, add one line
+            const line = document.createElement('div');
+            line.classList.add('line');
+            questionContainer.appendChild(line);
+        } else if (question.type === 'open-ended') {
+            // For open-ended questions, add 5 lines
+            for (let i = 0; i < 5; i++) {
+                const line = document.createElement('div');
+                line.classList.add('line');
+                questionContainer.appendChild(line);
+            }
+        } else if (question.type === 'true-false') {
+            // For True/False questions, add "True" or "False" options
+            const optionsContainer = document.createElement('div');
+            optionsContainer.classList.add('answer-options');
+            optionsContainer.innerHTML = `<span><span class="circle"></span> True</span>
+                                           <span><span class="circle"></span> False</span>`;
+            questionContainer.appendChild(optionsContainer);
+        } else if (question.type === 'rating') {
+            // For Rating questions, add options 1 to 5
+            const optionsContainer = document.createElement('div');
+            optionsContainer.classList.add('answer-options');
+            for (let i = 1; i <= 5; i++) {
+                optionsContainer.innerHTML += `<span><span class="circle"></span> Rating ${i}</span>`;
+            }
+            questionContainer.appendChild(optionsContainer);
+        }
+
+        questionsContainer.appendChild(questionContainer);
+    });
+
+    // Add the print button functionality
+    window.onload = () => {
+        // Ensure the print button doesn't appear in the printed version
+        const printButton = document.querySelector('.print-button');
+        printButton.style.display = 'none';
+    };
+</script>
+
+</body>
+</html>

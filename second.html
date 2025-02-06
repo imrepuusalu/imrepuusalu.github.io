@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Küsimuste loomine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+        }
+
+        .question-container input,
+        .question-container textarea,
+        .question-container select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .options-container {
+            margin-top: 10px;
+        }
+
+        .option-input {
+            margin: 5px 0;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .question-preview {
+            margin-top: 20px;
+        }
+
+        .clear-button {
+            background-color: #f44336;
+            margin-top: 10px;
+        }
+
+        .clear-button:hover {
+            background-color: #e53935;
+        }
+
+        .next-button {
+            background-color: #008CBA;
+            margin-top: 20px;
+        }
+
+        .next-button:hover {
+            background-color: #007B9A;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>Loo oma test</h2>
+    </div>
+
+    <div class="question-container">
+        <label for="question">Sisestage küsimus:</label>
+        <input type="text" id="question" placeholder="Sisestage oma küsimus siia">
+
+        <label for="type">Valige küsimuse tüüp:</label>
+        <select id="type">
+            <option value="multiple-choice">Valikvastustega</option>
+            <option value="translation">Tõlkimine</option>
+            <option value="open-ended">Avatud vastus</option>
+            <option value="true-false">Õige/Väär</option>
+            <option value="rating">Hinnang (1–5)</option>
+        </select>
+
+        <div id="options-container" class="options-container">
+            <!-- See näitab dünaamiliselt valikvastuste sisendeid -->
+        </div>
+
+        <button class="button" onclick="addQuestion()">Lisa küsimus</button>
+        <button class="button clear-button" onclick="clearQuestions()">Kustuta küsimused</button>
+    </div>
+
+    <div id="questionPreview" class="question-preview">
+        <!-- Lisatud küsimuste eelvaade -->
+    </div>
+
+    <button class="button next-button" onclick="goToPrintable()">Mine prinditavale lehele</button>
+</div>
+
+<script>
+    // Function to dynamically add options input for different question types
+    function updateOptions() {
+        const questionType = document.getElementById('type').value;
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = ''; // Clear options container
+
+        if (questionType === 'multiple-choice') {
+            // Add four input fields for multiple-choice options
+            for (let i = 1; i <= 4; i++) {
+                const input = document.createElement('input');
+                input.className = 'option-input';
+                input.type = 'text';
+                input.placeholder = `Valik ${i}`;
+                input.id = `option${i}`;
+                optionsContainer.appendChild(input);
+            }
+        } else if (questionType === 'true-false') {
+            // Create true/false options
+            const trueOption = document.createElement('input');
+            trueOption.type = 'radio';
+            trueOption.name = 'true-false';
+            trueOption.value = 'True';
+            const falseOption = document.createElement('input');
+            falseOption.type = 'radio';
+            falseOption.name = 'true-false';
+            falseOption.value = 'False';
+            optionsContainer.appendChild(document.createTextNode('Õige'));
+            optionsContainer.appendChild(trueOption);
+            optionsContainer.appendChild(document.createTextNode('Väär'));
+            optionsContainer.appendChild(falseOption);
+        } else if (questionType === 'rating') {
+            // Add rating scale (1-5)
+            for (let i = 1; i <= 5; i++) {
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'rating';
+                input.value = i;
+                optionsContainer.appendChild(document.createTextNode(`${i}`));
+                optionsContainer.appendChild(input);
+            }
+        }
+    }
+
+    // Call updateOptions when the page loads and when the question type changes
+    document.getElementById('type').addEventListener('change', updateOptions);
+    updateOptions();
+
+    // Add a question to localStorage
+    function addQuestion() {
+        const questionText = document.getElementById('question').value;
+        const questionType = document.getElementById('type').value;
+
+        if (!questionText) {
+            alert("Sisestage küsimus.");
+            return;
+        }
+
+        let options = [];
+        if (questionType === 'multiple-choice') {
+            for (let i = 1; i <= 4; i++) {
+                const option = document.getElementById(`option${i}`).value;
+                if (option) options.push(option);
+            }
+            if (options.length < 2) {
+                alert("Valikvastustega küsimustel peab olema vähemalt 2 valikut.");
+                return;
+            }
+        }
+
+        const newQuestion = {
+            question: questionText,
+            type: questionType,
+            options: options
+        };
+
+        let questions = JSON.parse(localStorage.getItem('testQuestions')) || [];
+        questions.push(newQuestion);
+        localStorage.setItem('testQuestions', JSON.stringify(questions));
+        previewQuestions();
+    }
+
+    // Display questions preview
+    function previewQuestions() {
+        const questions = JSON.parse(localStorage.getItem('testQuestions')) || [];
+        const previewContainer = document.getElementById('questionPreview');
+        previewContainer.innerHTML = '';
+
+        questions.forEach((question, index) => {
+            const questionElement = document.createElement('div');
+            questionElement.innerHTML = `<strong>Küsimus ${index + 1}:</strong> ${question.question}`;
+
+            if (question.type === 'multiple-choice') {
+                question.options.forEach(option => {
+                    questionElement.innerHTML += `<br>- ${option}`;
+                });
+            } else if (question.type === 'true-false') {
+                questionElement.innerHTML += `<br>- Õige<br>- Väär`;
+            } else if (question.type === 'rating') {
+                questionElement.innerHTML += `<br>1-5: (Hinnake küsimust)`;
+            } else if (question.type === 'translation' || question.type === 'open-ended') {
+                questionElement.innerHTML += `<br><em>Spetsiifiline küsimuse tüüp</em>`;
+            }
+
+            previewContainer.appendChild(questionElement);
+        });
+    }
+
+    // Clear all questions
+    function clearQuestions() {
+        if (confirm("Kas olete kindel, et soovite kõik küsimused kustutada?")) {
+            localStorage.removeItem('testQuestions');
+            previewQuestions();
+        }
+    }
+
+    // Navigate to printable page
+    function goToPrintable() {
+        window.location.href = 'printable.html';
+    }
+
+    // Initialize preview
+    previewQuestions();
+</script>
+
+</body>
+</html>
