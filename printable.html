@@ -4,94 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Printable Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .question-container {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 15px;
-        }
-
-        .question-container:last-child {
-            border-bottom: none;
-        }
-
-        .question-container span {
-            font-weight: bold;
-        }
-
-        .line {
-            display: block;
-            border-top: 1px solid #000;
-            width: 100%;
-            height: 20px;
-            margin-top: 10px;
-        }
-
-        .circle {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            border: 1px solid #000;
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        .answer-options {
-            margin-top: 10px;
-        }
-
-        .answer-options span {
-            display: block;
-            margin-top: 5px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .header .name,
-        .header .date {
-            border-bottom: 1px solid #000;
-            width: 45%;
-        }
-
-        .print-button {
-            display: none;
-        }
-
-        /* Add page breaks if content exceeds one page */
-        @media print {
-            .container {
-                width: 100%;
-                max-width: 100%;
-                padding: 0;
-            }
-
-            .page-break {
-                page-break-before: always;
-            }
-
-            .print-button {
-                display: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
 
@@ -105,7 +18,7 @@
         <!-- Questions will be dynamically inserted here -->
     </div>
 
-    <button class="print-button" onclick="window.print()">Print</button>
+    <button class="print-button" onclick="window.print()" type="button">Print</button>
 </div>
 
 <script>
@@ -157,14 +70,6 @@
 
         questionsContainer.appendChild(questionContainer);
     });
-
-    // Add the print button functionality
-    window.onload = () => {
-        // Ensure the print button doesn't appear in the printed version
-        const printButton = document.querySelector('.print-button');
-        printButton.style.display = 'none';
-    };
 </script>
-
 </body>
 </html>
