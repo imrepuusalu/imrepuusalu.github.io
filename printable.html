@@ -40,10 +40,14 @@
             });
             questionContainer.appendChild(optionsContainer);
         } else if (question.type === 'translation') {
-            // For translation questions, add one line
+            const optionsContainer = document.createElement('div');
             const line = document.createElement('div');
             line.classList.add('line');
             questionContainer.appendChild(line);
+            question.options.forEach(option => {
+                optionsContainer.innerHTML += `<div class="option">${option}</div>`;
+            });
+            questionContainer.appendChild(optionsContainer);
         } else if (question.type === 'open-ended') {
             // For open-ended questions, add 5 lines
             for (let i = 0; i < 5; i++) {

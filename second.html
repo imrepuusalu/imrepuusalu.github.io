@@ -10,7 +10,7 @@
 
 <div class="container">
     <div class="header">
-        <h2>Loo oma test</h2>
+        <h2>Loo oma test</h2>   
     </div>
 
     <div class="question-container">
@@ -30,15 +30,15 @@
             <!-- See näitab dünaamiliselt valikvastuste sisendeid -->
         </div>
 
-        <button class="button" onclick="addQuestion()">Lisa küsimus</button>
-        <button class="button clear-button" onclick="clearQuestions()">Kustuta küsimused</button>
+        <button type="button" class="button" onclick="addQuestion()">Lisa küsimus</button>
+        <button type="button" class="button clear-button" onclick="clearQuestions()">Kustuta küsimused</button>
     </div>
 
     <div id="questionPreview" class="question-preview">
         <!-- Lisatud küsimuste eelvaade -->
     </div>
 
-    <button class="button next-button" onclick="goToPrintable()">Mine prinditavale lehele</button>
+    <button type="button" class="button next-button" onclick="goToPrintable()">Mine prinditavale lehele</button>
 </div>
 
 <script>
@@ -47,9 +47,8 @@
         const questionType = document.getElementById('type').value;
         const optionsContainer = document.getElementById('options-container');
         optionsContainer.innerHTML = ''; // Clear options container
-
+    
         if (questionType === 'multiple-choice') {
-            // Add four input fields for multiple-choice options
             for (let i = 1; i <= 4; i++) {
                 const input = document.createElement('input');
                 input.className = 'option-input';
@@ -59,7 +58,6 @@
                 optionsContainer.appendChild(input);
             }
         } else if (questionType === 'true-false') {
-            // Create true/false options
             const trueOption = document.createElement('input');
             trueOption.type = 'radio';
             trueOption.name = 'true-false';
@@ -73,7 +71,6 @@
             optionsContainer.appendChild(document.createTextNode('Väär'));
             optionsContainer.appendChild(falseOption);
         } else if (questionType === 'rating') {
-            // Add rating scale (1-5)
             for (let i = 1; i <= 5; i++) {
                 const input = document.createElement('input');
                 input.type = 'radio';
@@ -82,8 +79,13 @@
                 optionsContainer.appendChild(document.createTextNode(`${i}`));
                 optionsContainer.appendChild(input);
             }
+        } else if (questionType === 'translation') {
+            const textarea = document.createElement('textarea');
+            textarea.className = 'translation-input';
+            textarea.rows = 4;  
+            optionsContainer.appendChild(textarea);
         }
-    }
+    }    
 
     // Call updateOptions when the page loads and when the question type changes
     document.getElementById('type').addEventListener('change', updateOptions);
@@ -109,7 +111,12 @@
                 alert("Valikvastustega küsimustel peab olema vähemalt 2 valikut.");
                 return;
             }
-        }
+        } else if (questionType === 'translation') {
+            document.querySelectorAll('.translation-input').forEach((textarea) => {
+                const rows = textarea.value.split('\n').filter(line => line.trim() !== ""); // Split by new lines and remove empty rows
+                options.push(...rows); // Add each row as a separate option
+            });
+        }        
 
         const newQuestion = {
             question: questionText,
@@ -141,10 +148,7 @@
                 questionElement.innerHTML += `<br>- Õige<br>- Väär`;
             } else if (question.type === 'rating') {
                 questionElement.innerHTML += `<br>1-5: (Hinnake küsimust)`;
-            } else if (question.type === 'translation' || question.type === 'open-ended') {
-                questionElement.innerHTML += `<br><em>Spetsiifiline küsimuse tüüp</em>`;
             }
-
             previewContainer.appendChild(questionElement);
         });
     }
